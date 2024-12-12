@@ -8,7 +8,7 @@ import FormService from "../services/formServices";
 import { Eye, ChevronDown } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 const Form = () => {
-  const [categoriesData, setCategoriesData] = useState([null]);
+  const [categoriesData, setCategoriesData] = useState([]);
   const [clozeData, setClozeData] = useState([]);
   const [comprehensionData, setComprehensionData] = useState([]);
   const [title, setTitle] = useState("");
@@ -40,42 +40,55 @@ const Form = () => {
   }, []);
 
   const handleSave = async () => {
-    if (questions.length === 0) {
-      alert("Please add at least one question before saving");
-      return;
-    }
-    const questions = [
-      ...categoriesData.map((data) => ({
-        type: "categorize",
-        questionData: {
-          categories: data.categories,
-          description: data.description,
-          items: data.items,
-        },
-      })),
-      ...clozeData.map((data) => ({
-        type: "cloze",
-        questionData: {
-          blanks: data.blanks,
-          options: data.options,
-          sentence: data.sentence,
-        },
-      })),
-      ...comprehensionData.map((data) => ({
-        type: "comprehension",
-        questionData: {
-          passage: data.passage,
-          questions: data.questions,
-        },
-      })),
+    const validQuestions = [
+      ...categoriesData
+        .filter((data) => data && data.categories?.length && data.items?.length)
+        .map((data) => ({
+          type: "categorize",
+          questionData: {
+            categories: data.categories,
+            description: data.description,
+            items: data.items,
+          },
+        })),
+      ...clozeData
+        .filter(
+          (data) =>
+            data && data.sentence && data.blanks?.length && data.options?.length
+        )
+        .map((data) => ({
+          type: "cloze",
+          questionData: {
+            blanks: data.blanks,
+            options: data.options,
+            sentence: data.sentence,
+          },
+        })),
+      ...comprehensionData
+        .filter((data) => data && data.passage && data.questions?.length)
+        .map((data) => ({
+          type: "comprehension",
+          questionData: {
+            passage: data.passage,
+            questions: data.questions,
+          },
+        })),
     ];
 
-    if (questions.length === 0) {
-      alert("Please add at least one question before saving");
+    if (validQuestions.length === 0) {
+      alert("Please add and complete at least one question before saving");
       return;
     }
 
-    const response = await FormService.createForm({ questions, title });
+    if (!title.trim()) {
+      alert("Please enter a title for the form");
+      return;
+    }
+
+    const response = await FormService.createForm({
+      questions: validQuestions,
+      title: title.trim(),
+    });
     if (response.success) {
       console.log(response.data);
       navigate("/all");

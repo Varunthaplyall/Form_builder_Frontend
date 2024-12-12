@@ -97,10 +97,9 @@ const CategorizeResponse = ({ questions, onResponseChange }) => {
             {question.categories.map((category, index) => (
               <div
                 key={category}
-                className={`bg-${getCategoryColor(
-                  category,
-                  index
-                )} rounded-xl p-4 w-64`}
+                className={`${
+                  index % 2 === 0 ? "bg-red-100" : "bg-yellow-100"
+                } rounded-xl p-4 w-64`}
                 onDrop={(e) => handleDrop(e, category, questionIndex)}
                 onDragOver={handleDragOver}
               >
@@ -120,10 +119,6 @@ const CategorizeResponse = ({ questions, onResponseChange }) => {
       ))}
     </div>
   );
-};
-
-const getCategoryColor = (category, index) => {
-  return index % 2 === 0 ? "red-100" : "yellow-100";
 };
 
 export default CategorizeResponse;
