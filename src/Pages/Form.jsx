@@ -40,6 +40,10 @@ const Form = () => {
   }, []);
 
   const handleSave = async () => {
+    if (questions.length === 0) {
+      alert("Please add at least one question before saving");
+      return;
+    }
     const questions = [
       ...categoriesData.map((data) => ({
         type: "categorize",
